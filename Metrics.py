@@ -5,29 +5,11 @@ from collections import defaultdict
 import json
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+def load_affiliations(affiliation_file):
+    with open(affiliation_file, 'r') as file:
+        return json.load(file)
 
-# Constants
-ORG_NAME = "anuket-project"
-TOKEN = os.getenv('GITHUB_TOKEN')
-TIMEFRAME_DAYS = 365  # Change this to filter the timeframe, e.g., 60 for last 2 months
-AFFILIATION_FILE = "affiliations.json"
-
-# Load affiliations
-with open(AFFILIATION_FILE, 'r') as file:
-    affiliations = json.load(file)
-
-# Initialize Github object
-g = Github(TOKEN)
-org = g.get_organization(ORG_NAME)
-repos = org.get_repos()
-
-# Calculate timeframe
-end_date = datetime.now(timezone.utc)
-start_date = end_date - timedelta(days=TIMEFRAME_DAYS)
-
-def get_repo_metrics(repo):
+def get_repo_metrics(repo, affiliations, start_date, end_date):
     commits = repo.get_commits(since=start_date, until=end_date)
     commit_data = []
 
@@ -47,7 +29,7 @@ def get_repo_metrics(repo):
     num_committers = len(committers)
 
     # Number of committer companies
-    committer_companies = set([affiliations.get(committer, 'unknown') for committer in committers])
+    committer_companies = set([affiliations.get(commit['author'], 'unknown') for commit in commit_data])
     num_committer_companies = len(committer_companies)
 
     # Top 50% committers by commits
@@ -74,15 +56,40 @@ def get_repo_metrics(repo):
     
     return metrics
 
-# Collect metrics for all repos
-all_repo_metrics = {}
+def main():
+    # Load environment variables from .env file
+    load_dotenv()
 
-for repo in repos:
-    try:
-        metrics = get_repo_metrics(repo)
-        all_repo_metrics[repo.name] = metrics
-    except Exception as e:
-        print(f"Error processing repo {repo.name}: {e}")
+    # Constants
+    ORG_NAME = "anuket-project"
+    TOKEN = os.getenv('GITHUB_TOKEN')
+    TIMEFRAME_DAYS = 365  # Change this to filter the timeframe, e.g., 60 for last 2 months
+    AFFILIATION_FILE = os.path.join(os.path.dirname(__file__), "affiliations.json")
 
-# Output the metrics for all repos
-print(json.dumps(all_repo_metrics, indent=4))
+    # Load affiliations
+    affiliations = load_affiliations(AFFILIATION_FILE)
+
+    # Initialize Github object
+    g = Github(TOKEN)
+    org = g.get_organization(ORG_NAME)
+    repos = org.get_repos()
+
+    # Calculate timeframe
+    end_date = datetime.now(timezone.utc)
+    start_date = end_date - timedelta(days=TIMEFRAME_DAYS)
+
+    # Collect metrics for all repos
+    all_repo_metrics = {}
+
+    for repo in repos:
+        try:
+            metrics = get_repo_metrics(repo, affiliations, start_date, end_date)
+            all_repo_metrics[repo.name] = metrics
+        except Exception as e:
+            print(f"Error processing repo {repo.name}: {e}")
+
+    # Output the metrics for all repos
+    print(json.dumps(all_repo_metrics, indent=4))
+
+if __name__ == "__main__":
+    main()
