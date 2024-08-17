@@ -51,12 +51,12 @@ Place these files in the root directory of the project.
 ## Example Commands
 ### GitHub:
 ```bash
-python main.py --platform github --start-date 2024-01-01 --end-date 2024-07-31 --output-file github_metrics.csv
+python script.py --platform github --start-date 2024-01-01 --end-date 2024-07-31 --output-file github_metrics.csv
 ```
 
 ### Gerrit:
 ```bash
-python main.py --platform gerrit --start-date 2024-01-01 --end-date 2024-07-31 --output-file gerrit_metrics.csv
+python script.py --platform gerrit --start-date 2024-01-01 --end-date 2024-07-31 --output-file gerrit_metrics.csv
 ```
 
 ## Output:
