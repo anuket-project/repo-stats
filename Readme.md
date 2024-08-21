@@ -24,19 +24,35 @@ git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
 ```
 
-2. Install the required Python packages:
+2. Set up a Virtual Environment:
+- Create a virtual environment:
+```bash
+python -m venv venv
+```
+3. Activate the virtual environment:
+- On Windows:
+```bash
+venv\Scripts\activate
+```
+
+- On macOS/Linux:
+```bash
+source venv/bin/activate
+```
+
+5. Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Create a .env file:
+6. Create a .env file:
 - Create a .env file in the root directory of the project.
 - Add your GitHub token to the file:
 ```bash
 GITHUB_TOKEN=your_github_token
 ```
 
-4. Prepare the required JSON files:
+7. Prepare the required JSON files:
 
 - affiliations.json:Contains mapping of committers to their affiliations (GitHub).
 - company_mapping.json: Contains mapping of Gerrit users to their companies.
